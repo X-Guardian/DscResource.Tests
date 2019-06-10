@@ -432,6 +432,8 @@ function Publish-WikiContent
         Expand-Archive -Path $wikiContentArtifactPath -DestinationPath $path -Force
         Remove-Item -Path $wikiContentArtifactPath
 
+        Set-WikiSidebar -ResourceModuleName $ResourceModuleName -Path $path
+
         Push-Location
         Set-Location -Path $path
 
@@ -539,6 +541,34 @@ function New-TempFolder
     while (-not $path)
 
     return $path
+}
+
+function Set-WikiSidebar {
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $ResourceModuleName,
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Path
+    )
+
+    $WikiSidebar = @()
+    $WikiSidebar += "# $ResourceModuleName Module"
+    $WikiSidebar += ' '
+
+    $wikiFiles = Get-ChildItem -Path $Path
+    Foreach ($file in $wikiFiles)
+    {
+        $content = Get-Content -Path $file
+        $mdHeader = $content[0].trim('# ')
+        $wikiSidebar += "- [$mdHeader]($file.BaseName)"
+    }
+
+    $wikiSideBarFileFullName = "$path\_Sidebar.md"
+    $wikiSideBar | Out-File -FilePath $wikiSideBarFileFullName -Encoding ASCII
 }
 
 Export-ModuleMember -Function New-DscResourceWikiSite, Publish-WikiContent
