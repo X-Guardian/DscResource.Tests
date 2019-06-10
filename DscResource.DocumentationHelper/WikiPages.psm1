@@ -436,7 +436,7 @@ function Publish-WikiContent
     Write-Verbose -Message $script:localizedData.InitializeGitMessage
     Invoke-Git config --local user.email $GitUserEmail
     Invoke-Git config --local user.name $GitUserName
-    Invoke-Git config --local credential.helper store
+#    Invoke-Git config --local credential.helper store
     Invoke-Git remote set-url origin "https://$($GitUserName):$($GithubAccessToken)@github.com/$RepoName.wiki.git"
 #    Add-Content "$HOME\.git-credentials" "https://$($GitUserName):$($GithubAccessToken)@github.com`n"
 
