@@ -436,7 +436,8 @@ function Publish-WikiContent
     Invoke-Git config --local user.name $GitUserName
     Invoke-Git config --local credential.helper store
     Invoke-Git config --local core.autocrlf true
-    Add-Content "$HOME\.git-credentials" "https://$($GitUserName):$($GithubAccessToken)@github.com`n"
+    Invoke-Git remote set-url origin "https://$($GitUserName):$($GithubAccessToken)@github.com/$RepoName.wiki.git"
+#    Add-Content "$HOME\.git-credentials" "https://$($GitUserName):$($GithubAccessToken)@github.com`n"
 
     Write-Verbose -Message $localizedData.AddWikiContentToGitRepoMessage
     Invoke-Git add *
@@ -447,7 +448,7 @@ function Publish-WikiContent
 
     Write-Verbose -Message $localizedData.PushUpdatedRepoMessage
     Invoke-Git push --quiet
-    #Invoke-Git push origin $BuildVersion --quiet
+    Invoke-Git push origin $BuildVersion --quiet
 
     Pop-Location
 
@@ -478,7 +479,7 @@ function Invoke-Git
         $Arguments
     )
 
-    Write-Debug "Invoking Git $Arguments"
+    Write-Verbose "Invoking Git $Arguments"
     try
     {
         & git.exe @Arguments 2>$null
