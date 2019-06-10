@@ -447,7 +447,7 @@ function Publish-WikiContent
 
     Write-Verbose -Message $localizedData.PushUpdatedRepoMessage
     Invoke-Git push --quiet
-    Invoke-Git push origin $BuildVersion --quiet
+    #Invoke-Git push origin $BuildVersion --quiet
 
     Pop-Location
 
