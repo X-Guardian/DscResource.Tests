@@ -428,8 +428,10 @@ function Publish-WikiContent
         -Verbose:$false
 
     Write-Verbose -Message ($localizedData.UnzipWikiContentArtifactMessage -f $wikiContentArtifact.filename)
-    Expand-Archive -Path $wikiContentArtifactPath -DestinationPath $path
+    Expand-Archive -Path $wikiContentArtifactPath -DestinationPath $path -Force
     Remove-Item -Path $wikiContentArtifactPath
+
+    Set-WikiSidebar -ResourceModuleName $ResourceModuleName -Path $path
 
     Push-Location
     Set-Location -Path $path
@@ -491,6 +493,34 @@ function Invoke-Git
             throw $_
         }
     }
+}
+
+function Set-WikiSidebar {
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $ResourceModuleName,
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Path
+    )
+
+    $WikiSidebar = @()
+    $WikiSidebar += "# $ResourceModuleName Module"
+    $WikiSidebar += ' '
+
+    $wikiFiles = Get-ChildItem -Path $Path
+    Foreach ($file in $wikiFiles)
+    {
+        $content = Get-Content -Path $file
+        $mdHeader = $content[0].trim('# ')
+        $wikiSidebar += "- [$mdHeader]($file.BaseName)"
+    }
+
+    $wikiSideBarFileFullName = "$path\_Sidebar.md"
+    $wikiSideBar | Out-File -FilePath $wikiSideBarFileFullName -Encoding ASCII
 }
 
 Export-ModuleMember -Function New-DscResourceWikiSite, Publish-WikiContent
