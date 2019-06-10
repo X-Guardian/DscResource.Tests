@@ -516,9 +516,9 @@ function Set-WikiSidebar {
     Foreach ($file in $wikiFiles)
     {
         Write-Verbose "Processing file $($file.name)"
-        $content = Get-Content -Path $file
+        $content = Get-Content -Path $file.FullName
         $mdHeader = $content[0].trim('# ')
-        $wikiSidebar += "- [$mdHeader]($file.BaseName)"
+        $wikiSidebar += "- [$mdHeader]($($file.BaseName))"
     }
 
     $wikiSideBarFileFullName = "$path\_Sidebar.md"
