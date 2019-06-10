@@ -555,6 +555,7 @@ function Set-WikiSidebar {
         $Path
     )
 
+    Write-Verbose "Generating Wiki Sidebar"
     $WikiSidebar = @()
     $WikiSidebar += "# $ResourceModuleName Module"
     $WikiSidebar += ' '
@@ -562,6 +563,7 @@ function Set-WikiSidebar {
     $wikiFiles = Get-ChildItem -Path $Path
     Foreach ($file in $wikiFiles)
     {
+        Write-Verbose "Processing file $($file.name)"
         $content = Get-Content -Path $file
         $mdHeader = $content[0].trim('# ')
         $wikiSidebar += "- [$mdHeader]($file.BaseName)"
