@@ -565,7 +565,14 @@ function Set-WikiSidebar {
     {
         Write-Verbose "Processing file $($file.name)"
         $content = Get-Content -Path $file.FullName
-        $mdHeader = $content[0].trim('# ')
+        if ($content -is [System.Array])
+        {
+            $mdHeader = $content[0].trim('# ')
+        }
+        else
+        {
+            $mdHeader = $content.trim('# ')
+        }
         $wikiSidebar += "- [$mdHeader]($($file.BaseName))"
     }
 
