@@ -351,6 +351,11 @@ function Publish-WikiContent
         $JobId = $env:APPVEYOR_JOB_ID,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $MainModulePath = $env:APPVEYOR_BUILD_FOLDER,
+
+        [Parameter()]
         [System.String]
         $ResourceModuleName = (($env:APPVEYOR_REPO_NAME -split '/')[1]),
 
@@ -432,6 +437,7 @@ function Publish-WikiContent
     Remove-Item -Path $wikiContentArtifactPath
 
     Set-WikiSidebar -ResourceModuleName $ResourceModuleName -Path $path
+    Copy-WikiPages -MainModulePath $MainModulePath -Path $path
 
     Push-Location
     Set-Location -Path $path
@@ -531,5 +537,29 @@ function Set-WikiSidebar {
     $wikiSideBarFileFullName = "$path\_Sidebar.md"
     $wikiSideBar | Out-File -FilePath $wikiSideBarFileFullName -Encoding ASCII
 }
+
+function Copy-WikiPages {
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $MainModulePath,
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Path
+    )
+
+    $wikiSourcePath = "$MainModulePath/WikiSource"
+    Write-Verbose -Message "Copying Wiki Pages from $wikiSourcePath"
+
+    $wikiFiles = Get-ChildItem -Path $wikiSourcePath
+    Foreach ($file in $wikiFiles)
+    {
+        Write-Verbose -Message "Copying file $($file.name)"
+        Copy-Item -Path $file.fullname -Destination $Path
+    }
+}
+
 
 Export-ModuleMember -Function New-DscResourceWikiSite, Publish-WikiContent
