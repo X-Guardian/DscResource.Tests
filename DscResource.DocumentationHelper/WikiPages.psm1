@@ -518,7 +518,7 @@ function Set-WikiSidebar {
     $WikiSidebar += "# $ResourceModuleName Module"
     $WikiSidebar += ' '
 
-    $wikiFiles = Get-ChildItem -Path $Path
+    $wikiFiles = Get-ChildItem -Path $Path -Filter '*.md'
     Foreach ($file in $wikiFiles)
     {
         Write-Verbose "Processing file $($file.name)"
