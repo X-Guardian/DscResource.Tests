@@ -980,7 +980,10 @@ Configuration CertificateExport_CertByFriendlyName_Config
             Mock -CommandName Expand-Archive
             Mock -CommandName Remove-Item
             Mock -CommandName Set-Location
-    }
+            Mock -CommandName Set-WikiSidebar
+            Mock -CommandName Set-WikiFooter
+            Mock -CommandName Copy-WikiFiles
+        }
 
         Context 'When the Wiki Git repo is not found' {
             BeforeAll {
@@ -1133,6 +1136,65 @@ Configuration CertificateExport_CertByFriendlyName_Config
                     }
                 }
             }
+        }
+    }
+
+    Describe 'DscResource.DocumentationHelper\WikiPages.psm1\Set-WikiSideBar' {
+
+        $mockSetWikiSideBarParms = @{
+            ResourceModuleName = 'TestResource'
+            Path               = $env:temp
+        }
+
+        $mockFileInfo = @(
+            @{
+                Name     = 'resource1.md'
+                BaseName = 'resource1'
+                FullPath = "$($env:temp)\resource1.md"
+            }
+        )
+        BeforeAll {
+            Mock Get-Content
+            Mock Out-File
+        }
+
+        Context 'When there are no markdown files to add to the side bar' {
+            Mock Get-ChildItem -MockWith $mockFileInfo
+
+            It 'Should not throw an exception' {
+                { Set-WikiSideBar @mockSetWikiSideBarParms } | Should -Not -Throw
+            }
+
+            It 'Should call the expected mocks ' {
+                Assert-MockCalled `
+                    -CommandName Get-ChildItem `
+                    -ParameterFilter { $Path -eq $mockSetWikiSideBarParms.Path } `
+                    -Exactly -Times 1
+            }
+
+        }
+    }
+
+    Describe 'DscResource.DocumentationHelper\WikiPages.psm1\Set-WikiFooter' {
+        BeforeAll {
+            Mock Test-Path
+            Mock Out-File
+        }
+
+        Context '' {
+
+        }
+    }
+
+
+    Describe 'DscResource.DocumentationHelper\WikiPages.psm1\Copy-WikiFiles' {
+        BeforeAll {
+            Mock Get-ChildItem
+            Mock Copy-Item
+        }
+
+        Context '' {
+
         }
     }
 }

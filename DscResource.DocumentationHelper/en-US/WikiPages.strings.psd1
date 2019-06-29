@@ -14,4 +14,8 @@ ConvertFrom-StringData @'
     UpdateWikiCommitMessage                    = Updating Wiki from AppVeyor Job ID '{0}'.
     NoAppVeyorJobFoundError                    = No AppVeyor Job found with ID '{0}'.
     NoWikiContentArtifactError                 = No Wiki Content artifact found in AppVeyor job id '{0}'.
+    GenerateWikiSidebarMessage                 = Generating Wiki Sidebar '{0}'.
+    GenerateWikiFooterMessage                  = Generating Wiki Footer '{0}'.
+    CopyWikiFilesMessage                       = Copying Wiki files from '{0}'.
+    CopyFileMessage                            = Copying file '{0}'.
 '@
