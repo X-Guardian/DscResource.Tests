@@ -438,7 +438,8 @@ function Publish-WikiContent
         Remove-Item -Path $wikiContentArtifactPath
 
         Set-WikiSidebar -ResourceModuleName $ResourceModuleName -Path $path
-        Copy-WikiPages -MainModulePath $MainModulePath -Path $path
+        Set-WikiFooter -Path $path
+        Copy-WikiFiles -MainModulePath $MainModulePath -Path $path
 
         Push-Location
         Set-Location -Path $path
@@ -549,6 +550,21 @@ function New-TempFolder
     return $path
 }
 
+<#
+    .SYNOPSIS
+        Creates the Wiki side bar file from the list of markdown files in the path
+
+    .PARAMETER ResourceModuleName
+        The name of the resource module
+
+    .PARAMETER Path
+        The path of the Wiki page files
+
+    .EXAMPLE
+        Set-WikiSidebar -ResourceModuleName $ResourceModuleName -Path $path
+
+        Creates the Wiki side bar from the list of markdown files in the path
+#>
 function Set-WikiSidebar {
     [CmdletBinding()]
     param
@@ -561,15 +577,18 @@ function Set-WikiSidebar {
         $Path
     )
 
-    Write-Verbose "Generating Wiki Sidebar"
+    $wikiSideBarFileBaseName = '_Sidebar.md'
+    $wikiSideBarFileFullName = "$path\$wikiSideBarFileBaseName"
+
+    Write-Verbose -Message ($localizedData.GenerateWikiSidebarMessage -f $wikiSideBarFileBaseName)
     $WikiSidebar = @()
     $WikiSidebar += "# $ResourceModuleName Module"
     $WikiSidebar += ' '
 
-    $wikiFiles = Get-ChildItem -Path $Path
+    $wikiFiles = Get-ChildItem -Path $Path -File
     Foreach ($file in $wikiFiles)
     {
-        Write-Verbose "Processing file $($file.name)"
+        Write-Verbose "Processing file $($file.Name)"
         $content = Get-Content -Path $file.FullName
         if ($content -is [System.Array])
         {
@@ -582,11 +601,61 @@ function Set-WikiSidebar {
         $wikiSidebar += "- [$mdHeader]($($file.BaseName))"
     }
 
-    $wikiSideBarFileFullName = "$path\_Sidebar.md"
     $wikiSideBar | Out-File -FilePath $wikiSideBarFileFullName -Encoding ASCII
 }
 
-function Copy-WikiPages {
+<#
+    .SYNOPSIS
+        Creates the Wiki footer file if one does not already exist.
+
+    .PARAMETER Path
+        The path for the Wiki footer file.
+
+    .EXAMPLE
+        Set-WikiFooter -Path $path
+
+        Creates the Wiki footer.
+#>
+function Set-WikiFooter {
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $ResourceModuleName,
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Path
+    )
+
+    $wikiFooterFileBaseName = '_Footer.md'
+    $wikiFooterFileFullName = "$path\$wikiFooterFileBaseName"
+
+    if (-not (Test-Path -Path $wikiFooterFileBaseName))
+    {
+        Write-Verbose -Message ($localizedData.GenerateWikiFooterMessage -f $wikiFooterFileBaseName)
+        $wikiFooter = @()
+
+        $wikiFooter | Out-File -FilePath $wikiFooterFileFullName -Encoding ASCII
+    }
+}
+
+<#
+    .SYNOPSIS
+        Copies any Wiki files from the module into the Wiki.
+
+    .PARAMETER MainModulePath
+        The path of the module.
+
+    .PARAMETER Path
+        The destination path for the Wiki files.
+
+    .EXAMPLE
+        Copy-WikiFiles -MainModulePath $MainModulePath -Path $path
+
+        Copies any Wiki files from the module into the Wiki.
+#>
+function Copy-WikiFiles {
     [CmdletBinding()]
     param
     (
@@ -599,12 +668,12 @@ function Copy-WikiPages {
     )
 
     $wikiSourcePath = "$MainModulePath/WikiSource"
-    Write-Verbose -Message "Copying Wiki Pages from $wikiSourcePath"
+    Write-Verbose -Message ($localizedData.CopyWikiFilesMessage -f $wikiSourcePath)
 
     $wikiFiles = Get-ChildItem -Path $wikiSourcePath
     Foreach ($file in $wikiFiles)
     {
-        Write-Verbose -Message "Copying file $($file.name)"
+        Write-Verbose -Message ($localizedData.CopyFileMessage -f $file.name)
         Copy-Item -Path $file.fullname -Destination $Path
     }
 }
